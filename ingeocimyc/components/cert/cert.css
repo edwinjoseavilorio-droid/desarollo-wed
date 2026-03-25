@@ -1,2 +1,57 @@
-/* Certificates Styles */
-/* Add certificates-specific styles here */
+.section.cert {
+  background-color: #f4f7fa;
+  color: #102a43;
+  padding: 40px 0;
+}
+
+.section.cert .cert-inner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border: 1px solid #d5e1e8;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(1, 42, 74, 0.08);
+}
+
+.section.cert .cert-inner img {
+  width: auto;
+  height: 64px;
+  max-width: 110px;
+  object-fit: contain;
+}
+
+.section.cert .cert-inner h3 {
+  margin: 0 0 8px;
+  font-size: 1.35rem;
+  color: #023e73;
+}
+
+.section.cert .cert-inner p {
+  margin: 0 0 8px;
+  line-height: 1.5;
+  color: #334e68;
+}
+
+.section.cert .cert-inner .small-link {
+  color: #0b72b9;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.section.cert .cert-inner .small-link:hover,
+.section.cert .cert-inner .small-link:focus {
+  text-decoration: underline;
+}
+
+@media (max-width: 860px) {
+  .section.cert .cert-inner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .section.cert .cert-inner img {
+    margin-bottom: 12px;
+  }
+}

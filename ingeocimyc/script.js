@@ -1,7 +1,3 @@
-// ========================================
-// SCRIPT PRINCIPAL - Carga de componentes
-// ========================================
-
 async function loadFragment(id, url) {
   try {
     const res = await fetch(url);
@@ -41,21 +37,17 @@ async function loadProducts() {
     
     const products = await res.json();
     
-    const container = document.querySelector('.grid.cards');
+    const container = document.querySelector('#products-container');
     if (!container) return;
     
     container.innerHTML = '';
     
     products.forEach(product => {
-      const card = document.createElement('article');
-      card.className = 'card';
-      card.innerHTML = `
-        <img class="product-img" src="${product.image}" alt="${product.name}">
-        <h3>${product.name}</h3>
-        <p class="product-desc">${product.description}</p>
-        <p class="product-price">$${Number(product.price).toLocaleString('es-CO')}</p>
-        <button class="btn primary">Más info</button>
-      `;
+      const card = document.createElement('product-card');
+      card.setAttribute('name', product.name);
+      card.setAttribute('price', product.price);
+      card.setAttribute('description', product.description);
+      card.setAttribute('image', product.image);
       container.appendChild(card);
     });
   } catch (err) {
@@ -66,10 +58,15 @@ async function loadProducts() {
 function initUI() {
   const menuBtn = document.querySelector('.menu-btn');
   const mainNav = document.querySelector('.main-nav');
+  const sidebar = document.querySelector('.sidebar-inner');
   
   if (menuBtn && mainNav) {
     menuBtn.addEventListener('click', () => {
       mainNav.classList.toggle('open');
+      if (sidebar) sidebar.classList.toggle('open');
+
+      const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
+      menuBtn.setAttribute('aria-expanded', String(!expanded));
     });
   }
 
@@ -85,9 +82,6 @@ function initUI() {
   loadProducts();
 }
 
-// ========================================
-// LISTA DE COMPONENTES A CARGAR
-// ========================================
 const components = [
   { id: 'site-header', url: 'components/header/header.html' },
   { id: 'site-hero', url: 'components/hero/hero.html' },
@@ -96,6 +90,7 @@ const components = [
   { id: 'site-projects', url: 'components/projects/projects.html' },
   { id: 'site-contact', url: 'components/contact/contact.html' },
   { id: 'site-clients', url: 'components/clients/clients.html' },
+  { id: 'site-sidebar', url: 'components/sidebar/sidebar.html' },
   { id: 'site-footer', url: 'components/footer/footer.html' }
 ];
 

@@ -1,16 +1,8 @@
-/* ============================================
-   MAIN STYLESHEET - Component Imports
-   ============================================
-   
-   Este archivo contiene los imports de todos los
-   CSS de los componentes. Los estilos globales
-   y variables están en components/global.css
-*/
-
-/* Global Styles and Variables */
+/* estilos principales para el sitio */
 @import url('./components/global.css');
 
-/* Components */
+
+/* Importación de estilos específicos de cada componente */
 @import url('./components/header/header.css');
 @import url('./components/hero/hero.css');
 @import url('./components/services/services.css');
@@ -22,7 +14,7 @@
 @import url('./components/cert/cert.css');
 @import url('./components/testimonials/testimonials.css');
 
-/* Pages */
+/* Estilos generales */
 @import url('./components/login/login.css');
 
 .login-form input:focus {

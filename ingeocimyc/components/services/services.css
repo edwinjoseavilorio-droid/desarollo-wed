@@ -1,4 +1,4 @@
-/* Services/Cards Styles */
+/* estilos para los servicios */
 .cards {
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))
 }

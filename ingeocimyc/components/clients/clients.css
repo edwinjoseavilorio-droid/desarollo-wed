@@ -1,4 +1,4 @@
-/* Clients Grid Styles */
+/*estilos para los clientes */
 .clients-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));

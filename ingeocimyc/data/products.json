@@ -4,20 +4,20 @@
         "name": "Ensayo de Suelos",
         "description": "Análisis y clasificación de muestras de suelo para determinar su capacidad portante, granulometría y propiedades físicas. Ideal para proyectos de construcción y cimentaciones.",
         "price": 120000,
-        "image": "https://example.com/ensayo-suelos.jpg"
+        "image": "https://images.unsplash.com/photo-1581091012184-7b881ab7d0f3?auto=format&fit=crop&w=800&q=80"
     },
     {
         "id": 2,
         "name": "Control de Calidad - Concreto",
         "description": "Verificación y seguimiento de la resistencia y durabilidad del concreto en obra. Incluye toma de muestras, ensayos de compresión y emisión de informes técnicos certificados.",
         "price": 200000,
-        "image": "https://example.com/control-concreto.jpg"
+        "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80"
     },
     {
         "id": 3,
         "name": "Mezclas Asfálticas",
         "description": "Evaluación de la composición y desempeño de mezclas asfálticas para pavimentos. Garantizamos el cumplimiento de normas técnicas colombianas para vías y proyectos viales.",
         "price": 150000,
-        "image": "https://example.com/mezclas-asfalticas.jpg"
+        "image": "https://images.unsplash.com/photo-1599670461348-96288eb6f588?auto=format&fit=crop&w=800&q=80"
     }
 ]

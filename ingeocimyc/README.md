@@ -1,75 +1,42 @@
 # INGEOCIMYC - Laboratorio de Geotecnia y Concretos
 
-Sistema web educativo modularizado con autenticación, carga dinámica de componentes y gestión de productos.
+Sistema web modular con autenticación, carga dinámica de componentes y gestión de productos.
 
-## ⚠️ Nota Importante - SOLO EDUCATIVO
+## Características Principales
 
-**Esta es una aplicación educativa.** Las credenciales están almacenadas en el código (hardcodeadas) y **NO es segura para producción**. 
+- Autenticación obligatoria con credenciales hardcodeadas (solo educativo)
+- Carga dinámica de fragmentos HTML para componentes reutilizables
+- Web Components personalizados para tarjetas de productos
+- Diseño responsive con CSS modular
+- Gestión de productos desde archivo JSON
 
-En un entorno real, debe implementar:
-- Servidor backend con validación segura
-- Tokens JWT o sesiones seguras
-- HTTPS obligatorio
-- Protección contra ataques (CSRF, XSS, etc.)
-
-## 📋 Credenciales Demo
+## Credenciales de Acceso
 
 ```
 Usuario: admin
 Contraseña: 1234
 ```
 
-## 🎯 Características Principales
+---
 
-### 1. **Autenticación (Login)**
+## Explicación de Conceptos Técnicos
 
-Sistema de login simple con protección de ruta:
+### 1. Fragmentos HTML (HTML Fragments)
 
-- Página `login.html` con formulario básico
-- Archivo `auth.js` maneja la lógica de autenticación
-- Protección: Si no está autenticado, redirige a login
-- Almacena token en `localStorage`
+Los fragmentos son archivos HTML independientes que se cargan dinámicamente en la página principal sin recargar toda la página.
 
-**Archivos:**
-- `login.html` - Formulario de inicio de sesión
-- `auth.js` - Lógica de autenticación
+**¿Cómo funcionan?**
+- Se almacenan en `components/` (ej: `header/header.html`, `footer/footer.html`)
+- Se cargan con `fetch()` en `script.js`
+- Se insertan en contenedores específicos con `innerHTML`
 
-**Cómo funciona:**
-```javascript
-// auth.js
-function login(username, password) {
-  if (username === 'admin' && password === '1234') {
-    localStorage.setItem('loggedIn', 'true');
-    return true;
-  }
-  return false;
-}
-```
+**Ventajas:**
+- Reutilización de código
+- Mantenimiento más fácil
+- Carga asíncrona sin recarga de página
+- Separación de responsabilidades
 
-### 2. **Fragmentos Reutilizables (HTML Fragments)**
-
-Los fragmentos son archivos HTML que se cargan dinámicamente en la página principal sin recargarla.
-
-```
-components/
-├── header/header.html       → Logo y navegación principal
-├── footer/footer.html       → Derechos reservados
-├── sidebar/sidebar.html     → Menú lateral
-├── hero/hero.html          → Sección principal
-├── services/services.html   → Servicios ofrecidos
-├── projects/projects.html   → Proyectos realizados
-├── clients/clients.html     → Clientes trabajados
-├── cert/cert.html          → Certificaciones
-└── contact/contact.html     → Formulario de contacto
-```
-
-**Ventajas de fragmentos:**
-- ✅ Reutilización de código
-- ✅ Separación de responsabilidades
-- ✅ Más fácil de mantener
-- ✅ Carga dinámica sin recarga de página
-
-**Implementación:**
+**Ejemplo de implementación:**
 ```javascript
 // script.js
 async function loadFragment(id, url) {
@@ -78,332 +45,298 @@ async function loadFragment(id, url) {
   document.getElementById(id).innerHTML = html;
 }
 
-// Cargar todos en paralelo
-await Promise.all(components.map(c => loadFragment(c.id, c.url)));
+// Carga el header
+await loadFragment('site-header', 'components/header/header.html');
 ```
 
-### 3. **Plantillas HTML (`<template>`)**
+### 2. Plantillas HTML (`<template>`)
 
-Las plantillas definen estructura reutilizable para productos.
+Las plantillas definen estructuras HTML reutilizables que se clonan dinámicamente.
 
+**Características:**
+- No se renderizan hasta ser usadas
+- Se clonan múltiples veces con `cloneNode()`
+- Ideales para listas de elementos dinámicos
+
+**Ejemplo:**
 ```html
 <template id="product-template">
   <article class="card">
-    <img src="" alt="">
     <h3></h3>
-    <p class="product-desc"></p>
-    <p class="product-price"></p>
-    <button class="btn primary">Más info</button>
+    <p class="description"></p>
+    <button>Comprar</button>
   </article>
 </template>
 ```
 
-**Características:**
-- No se renderiza hasta usarse
-- Se clona múltiples veces
-- Rápido y eficiente
+### 3. Web Components
 
-### 4. **Carga de Datos Externos (Fetch API)**
+Elementos HTML personalizados con encapsulación completa usando Shadow DOM.
 
-Los productos se cargan dinámicamente desde `data/products.json`:
+**¿Qué son?**
+- **Custom Elements:** Tags propios (ej: `<product-card>`)
+- **Shadow DOM:** Estilos y estructura encapsulados
+- **HTML Templates:** Reutilización de estructura
+- Estándar web moderno
 
+**Implementación en el proyecto:**
 ```javascript
-async function loadProducts() {
-  const res = await fetch('data/products.json');
-  const products = await res.json();
-  
-  products.forEach(product => {
-    const card = document.createElement('article');
-    card.className = 'card';
-    card.innerHTML = `
-      <img src="${product.image}" alt="${product.name}">
-      <h3>${product.name}</h3>
-      <p>${product.description}</p>
-      <p>$${product.price}</p>
+// components/product-card/product-card.js
+class ProductCard extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' }); // Shadow DOM
+  }
+
+  connectedCallback() {
+    this.render();
+  }
+
+  render() {
+    const name = this.getAttribute('name');
+    this.shadowRoot.innerHTML = `
+      <style>
+        /* Estilos encapsulados */
+      </style>
+      <div class="card">
+        <h3>${name}</h3>
+        <!-- contenido -->
+      </div>
     `;
-    container.appendChild(card);
+  }
+}
+
+customElements.define('product-card', ProductCard);
+```
+
+**Uso:**
+```html
+<!-- index.html -->
+<product-card name="Ensayo de Suelos" price="120000"></product-card>
+```
+
+---
+
+## Implementación del Formulario de Inicio de Sesión
+
+### Arquitectura de Autenticación
+
+**1. Verificación Inicial (index.html)**
+```javascript
+// Se ejecuta ANTES de cargar cualquier contenido
+if (localStorage.getItem('loggedIn') !== 'true') {
+  window.location.replace('./components/login/login.html');
+}
+```
+
+**2. Formulario de Login (login.html)**
+- Campos: usuario y contraseña
+- Validación en cliente con JavaScript
+- Mensajes de error dinámicos
+- Redirección automática al éxito
+
+**3. Lógica de Autenticación (auth.js)**
+```javascript
+const VALID_USER = 'admin';
+const VALID_PASS = '1234';
+
+function login(username, password) {
+  return username === VALID_USER && password === VALID_PASS;
+}
+
+function initLoginPage() {
+  const form = document.getElementById('login-form');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    if (login(username, password)) {
+      localStorage.setItem('loggedIn', 'true');
+      window.location.replace('../../index.html');
+    } else {
+      // Mostrar error
+    }
   });
 }
 ```
 
-**Archivo:** `data/products.json`
-
-Contiene 3 servicios principales:
-1. Ensayo de Suelos
-2. Control de Calidad - Concreto
-3. Mezclas Asfálticas
-
-### 5. **Web Components (Extensible)**
-
-El proyecto está estructurado para permitir Web Components personalizadas:
-
-```javascript
-class ProductCard extends HTMLElement {
-  constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
-  }
-  // Encapsulación de estilos y estructura
-}
-customElements.define('product-card', ProductCard);
-```
-
-## 📁 Estructura del Proyecto
+### Flujo Completo
 
 ```
-ingeocimyc/
-├── index.html              → Página principal
-├── login.html              → Página de autenticación
-├── script.js               → Script principal (carga componentes)
-├── auth.js                 → Lógica de autenticación
-├── styles.css              → Estilos globales
-├── README.md               → Este archivo
-├── components/             → Fragmentos HTML
-│   ├── header/
-│   │   └── header.html
-│   ├── footer/
-│   │   └── footer.html
-│   ├── sidebar/
-│   │   └── sidebar.html
-│   ├── hero/
-│   ├── services/
-│   ├── projects/
-│   ├── clients/
-│   ├── cert/
-│   └── contact/
-├── data/
-│   └── products.json       → Datos de productos
-└── assets/                 → Imágenes y recursos
-```
-
-## 🔄 Flujo de Autenticación
-
-```
-1. Usuario accede a http://localhost/index.html
+1. Usuario accede a index.html
    ↓
-2. auth.js verifica localStorage['loggedIn']
+2. Script verifica localStorage['loggedIn']
    ↓
-3. ¿Está autenticado? 
-   ├─ NO  → Redirige a login.html
-   └─ SÍ  → Carga script.js
+   - NO → Redirige a login.html
+   - SÍ → Carga página principal
    ↓
-4. Usuario ingresa usuario: admin | contraseña: 1234
+3. En login: usuario ingresa admin/1234
    ↓
-5. ¿Credenciales válidas?
-   ├─ NO  → Muestra error
-   └─ SÍ  → localStorage['loggedIn'] = 'true' → Redirige a index.html
+4. Validación correcta → localStorage['loggedIn'] = 'true'
+   ↓
+5. Redirección a index.html
 ```
 
-## 📊 Flujo de Carga de Página Principal
+---
 
-```
-1. index.html carga en navegador
-   ↓
-2. Cargan auth.js y script.js
-   ↓
-3. auth.js verifica autenticación
-   ↓
-4. script.js ejecuta al DOMContentLoaded:
-   ├─ Carga todos los fragmentos en paralelo (Promise.all)
-   ├─ Inicializa eventos (menú móvil, formularios)
-   ├─ Carga productos desde data/products.json
-   └─ Renderiza en la página
-```
+## Buenas Prácticas Aplicadas
 
-## 🎨 Colores de Marca
+### 1. **Separación de Responsabilidades**
+- **HTML:** Solo estructura
+- **CSS:** Solo estilos (modular por componente)
+- **JavaScript:** Solo lógica
 
-```css
---primary: #034f84       /* Azul principal */
---accent: #012a4a        /* Azul oscuro */
---bg: #f7f9fb           /* Fondo claro */
---card: #ffffff         /* Tarjetas */
---muted: #6b7280        /* Texto gris */
-```
+### 2. **Nomenclatura Consistente**
+- **camelCase:** `loadFragment()`, `initLoginPage()`
+- **kebab-case:** `product-card`, `site-header`
+- **PascalCase:** `ProductCard` (clases JS)
+- **SCREAMING_SNAKE_CASE:** `VALID_USER` (constantes)
 
-## ✅ Buenas Prácticas Aplicadas
+### 3. **Código Modular**
+- Archivos pequeños y específicos
+- Funciones reutilizables
+- Imports organizados en `styles.css`
 
-### Naming (Nomenclatura)
-- ✅ camelCase para variables y funciones: `loadProducts()`
-- ✅ kebab-case para clases CSS: `product-card`
-- ✅ PascalCase para clases JS: `ProductCard`
-- ✅ SCREAMING_SNAKE_CASE para constantes: `VALID_USER`
+### 4. **Accesibilidad (A11y)**
+- Labels asociados a inputs
+- Atributos `alt` en imágenes
+- Navegación por teclado
+- Aria-live para mensajes dinámicos
 
-### Estructura de Código
-- ✅ Funciones pequeñas y reutilizables
-- ✅ Un archivo, una responsabilidad
-- ✅ Comentarios en secciones complejas
-- ✅ Sin código duplicado (DRY)
+### 5. **Responsive Design**
+- Media queries para móviles
+- Flexbox/Grid para layouts
+- Menú hamburguesa adaptativo
 
-### Accesibilidad (A11y)
-- ✅ Labels asociados a inputs
-- ✅ Aria-live para mensajes dinámicos
-- ✅ Atributos alt en imágenes
-- ✅ Navegación con teclado
+### 6. **Gestión de Errores**
+- Try/catch en funciones asíncronas
+- Mensajes de error informativos
+- Fallbacks para recursos faltantes
 
-### Responsive Design
-- ✅ Media queries para móviles
-- ✅ Menú hamburguesa adaptativo
-- ✅ Layouts flexibles con Flexbox/Grid
+### 7. **Optimización de Rendimiento**
+- Carga asíncrona de componentes
+- Shadow DOM para encapsulación
+- Imágenes con lazy loading
 
-### Seguridad
-- ⚠️ Credenciales hardcodeadas (SOLO EDUCATIVO)
-- ⚠️ Sin validación de servidor
-- ⚠️ Sin protección CSRF
-- 📌 Nota: Implementar en producción
+---
 
-## 🚀 Cómo Usar
+## Cómo Ejecutar el Proyecto
 
-### Acceso Local
-
-1. Abre tu navegador
-2. Ve a `login.html`
-3. Ingresa las credenciales:
-   - Usuario: `admin`
-   - Contraseña: `1234`
-4. Serás redirigido a `index.html`
-
-### Servir Localmente
-
-**Opción 1: Python 3**
+### Opción 1: Servidor Local (Python)
 ```bash
 cd ingeocimyc
 python -m http.server 8000
-# Accede a http://localhost:8000/login.html
+# Acceder a http://localhost:8000/login.html
 ```
 
-**Opción 2: Node.js (http-server)**
-```bash
-npm install -g http-server
-http-server
-```
-
-**Opción 3: VS Code Live Server**
+### Opción 2: VS Code Live Server
 - Click derecho en `login.html`
 - "Open with Live Server"
 
-## 📚 Explicación de Conceptos
+### Opción 3: Navegador Directo
+- Abrir `login.html` en navegador moderno
+- Ingresar credenciales: `admin` / `1234`
 
-### **¿Qué son Fragmentos?**
-Fragmentos son archivos HTML independientes que se cargan dinámicamente:
-- Se cargan con `fetch()`
-- Se insertan en el DOM con `innerHTML`
-- No requieren recargar la página
-- Facilita mantenimiento
+---
 
-**Ejemplo:**
-```javascript
-// Carga components/header/header.html en <div id="site-header">
-await loadFragment('site-header', 'components/header/header.html');
+## Estructura del Proyecto
+
+```
+ingeocimyc/
+├── index.html              # Página principal
+├── login.html              # Redirección a login
+├── script.js               # Lógica principal
+├── auth.js                 # Autenticación
+├── styles.css              # Imports de CSS
+├── README.md               # Esta documentación
+├── components/             # Fragmentos HTML
+│   ├── header/            # Cabecera
+│   ├── footer/            # Pie de página
+│   ├── services/          # Servicios
+│   ├── product-card/      # Web Component
+│   └── ...                # Otros componentes
+├── data/
+│   └── products.json      # Datos de productos
+└── assets/                # Recursos estáticos
 ```
 
-### **¿Qué son Plantillas?**
-Bloques HTML que definen estructura reutilizable:
-- Se guardan en `<template>` 
-- Se clonan múltiples veces
-- Contienen contenido que se rellena dinamicamente
-- Ideal para listas de productos
+---
 
-**Ejemplo:**
-```html
-<template id="product-template">
-  <article class="card">...</article>
-</template>
-```
+## Notas Importantes
 
-### **¿Qué son Web Components?**
-Elementos HTML personalizados con encapsulación:
-- **Shadow DOM:** Aislamiento de estilos
-- **Custom Elements:** Tags propios (ej: `<product-card>`)
-- **HTML Templates:** Reutilización de estructura
-- Estándar web moderno
+**Este proyecto es educativo.** Las credenciales están hardcodeadas y NO debe usarse en producción.
 
-**Ejemplo:**
-```javascript
-class ProductCard extends HTMLElement {
-  // Lógica propia encapsulada
-}
-customElements.define('product-card', ProductCard);
-
-// Uso:
-// <product-card name="Producto" price="1000"></product-card>
-```
-
-## 🔐 Seguridad - IMPORTANTE
-
-**NUNCA usar en producción:**
-```javascript
-// ❌ INSEGURO - Credenciales en el cliente
-const VALID_USER = 'admin';
-const VALID_PASS = '1234';
-```
-
-**En producción, usar:**
-```javascript
-// ✅ SEGURO - Validación en servidor
-const response = await fetch('/api/login', {
-  method: 'POST',
-  body: JSON.stringify({ username, password })
-});
-// Recibir JWT token del servidor
-```
-
-## 💡 Posibles Mejoras
-
-- [ ] Implementar logout funcional
-- [ ] Agregar más validaciones en login
-- [ ] Incluir animaciones de carga
-- [ ] Mejorar diseño con Bootstrap o Tailwind
-- [ ] Agregar más servicios/productos
-- [ ] Implementar carrito de compras
-- [ ] Conectar con backend real
-- [ ] Agregar gestor de imágenes
-
-## 🛠️ Tecnologías Utilizadas
-
-| Tecnología | Uso |
-|-----------|-----|
-| HTML5 | Estructura |
-| CSS3 | Estilos y responsive |
-| JavaScript ES6+ | Lógica interactiva |
-| Fetch API | Cargar datos |
-| LocalStorage | Persistencia de sesión |
-| Font Awesome | Iconos |
-
-## 👥 Trabajo en Equipo
-
-**Este proyecto demuestra:**
-- ✅ Modularización del código
-- ✅ Separación de responsabilidades
-- ✅ Componentes reutilizables
-- ✅ Buenas prácticas de desarrollo
-- ✅ Estructura escalable
-
-**Para colaboración:**
-```bash
-# Crear rama para nueva característica
-git checkout -b feature/nueva-funcionalidad
-
-# Hacer commits descriptivos
-git commit -m "feat: agregar validación de email"
-
-# Push y crear Pull Request
-git push origin feature/nueva-funcionalidad
-```
-
-## 📝 Notas Finales
-
-Este proyecto es una base educativa para entender:
-- Cómo organizar código en componentes
-- Cómo cargar datos dinámicamente
-- Cómo implementar autenticación simple
-- Buenas prácticas de desarrollo web
-
-Para producción, requiere mejoras significativas en seguridad y arquitectura.
+**Para producción requeriría:**
+- Backend con validación segura
+- Tokens JWT
+- HTTPS obligatorio
+- Protección CSRF/XSS
+- Base de datos real
 
 ---
 
 **Proyecto:** INGEOCIMYC - Laboratorio de Geotecnia y Concretos  
-**Tipo:** Aplicación Web Educativa  
-**Última actualización:** Marzo 2026  
-**Licencia:** Educativa
+**Tipo:** Aplicación Web Educativa Modular  
+**Fecha:** Marzo 2026  
+**Estado:** Completo y Funcional
 
+### Opción 1: Servidor Local (Python)
+```bash
+cd ingeocimyc
+python -m http.server 8000
+
+```
+
+### Opción 2: VS Code Live Server
+- Click derecho en `login.html`
+- "Open with Live Server"
+
+### Opción 3: Navegador Directo
+- Abrir `login.html` en navegador moderno
+- Ingresar credenciales: `admin` / `1234`
+
+---
+
+## Estructura del Proyecto
+
+```
+ingeocimyc/
+├── index.html              # Página principal
+├── login.html              # Redirección a login
+├── script.js               # Lógica principal
+├── auth.js                 # Autenticación
+├── styles.css              # Imports de CSS
+├── README.md               # Esta documentación
+├── components/             # Fragmentos HTML
+│   ├── header/            # Cabecera
+│   ├── footer/            # Pie de página
+│   ├── services/          # Servicios
+│   ├── product-card/      # Web Component
+│   └── ...                # Otros componentes
+├── data/
+│   └── products.json      # Datos de productos
+└── assets/                # Recursos estáticos
+```
+
+---
+
+## Notas Importantes
+
+**Este proyecto es educativo.** Las credenciales están hardcodeadas y NO debe usarse en producción.
+
+**Para producción requeriría:**
+- Backend con validación segura
+- Tokens JWT
+- HTTPS obligatorio
+- Protección CSRF/XSS
+- Base de datos real
+
+---
+
+**Proyecto:** INGEOCIMYC - Laboratorio de Geotecnia y Concretos  
+**Tipo:** Aplicación Web Educativa Modular  
+**Fecha:** Marzo 2026  
+**Estado:** Completo y Funcional
